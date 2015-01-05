@@ -1,0 +1,307 @@
+<?xml version="1.0" ?>
+<cruise schemaVersion="72" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd">
+	<server artifactsdir="artifacts" commandRepositoryLocation="default" serverId="f8139f54-ca42-4bcb-8660-bbe385ff70b2"/>
+	<pipelines group="textbook_parallel_pipelines">
+		<pipeline name="commit_pipeline">
+			<materials>
+				<git url="https://github.com/kwasniew/try_git.git"/>
+			</materials>
+			<stage name="compile">
+				<jobs>
+					<job name="compile">
+						<tasks>
+							<exec command="./pipeline/commit/compile.sh">
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="commit_tests">
+				<jobs>
+					<job name="commit_tests">
+						<tasks>
+							<exec command="./pipeline/commit/commit_tests.sh">
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="assemble">
+				<jobs>
+					<job name="assemble">
+						<tasks>
+							<exec command="./pipeline/commit/assemble.sh">
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="code_analysis">
+				<jobs>
+					<job name="code_analysis">
+						<tasks>
+							<exec command="./pipeline/commit/code_analysis.sh">
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="binary_repo">
+				<jobs>
+					<job name="binary_repo">
+						<tasks>
+							<exec command="./pipeline/commit/binary_repo.sh">
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+		</pipeline>
+		<pipeline name="acceptance_pipeline">
+			<materials>
+				<pipeline materialName="app_artifact" pipelineName="commit_pipeline" stageName="binary_repo"/>
+			</materials>
+			<stage name="configure_env">
+				<jobs>
+					<job name="configure_env">
+						<tasks>
+							<exec command="echo">
+								<arg>Configure environment</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="deploy_binaries">
+				<jobs>
+					<job name="deploy_binaries">
+						<tasks>
+							<exec command="echo">
+								<arg>Deploy binaries from artifact repository</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="smoke_test">
+				<jobs>
+					<job name="smoke_test">
+						<tasks>
+							<exec command="echo">
+								<arg>Smoke test</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="acceptance_test">
+				<jobs>
+					<job name="acceptance_test">
+						<tasks>
+							<exec command="echo">
+								<arg>Acceptance tests</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="binary_repo">
+				<jobs>
+					<job name="binary_repo">
+						<tasks>
+							<exec command="echo">
+								<arg>Send metadata (acceptance stage passed) to artifact repository</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+		</pipeline>
+		<pipeline isLocked="true" name="uat_pipeline">
+			<materials>
+				<pipeline materialName="app_artifact" pipelineName="acceptance_pipeline" stageName="binary_repo"/>
+			</materials>
+			<stage name="configure_env">
+				<approval type="manual"/>
+				<jobs>
+					<job name="configure_env">
+						<tasks>
+							<exec command="echo">
+								<arg>Configure environment</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="deploy_binaries">
+				<jobs>
+					<job name="deploy_binaries">
+						<tasks>
+							<exec command="echo">
+								<arg>Deploy binaries from artifact repository</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="smoke_test">
+				<jobs>
+					<job name="smoke_test">
+						<tasks>
+							<exec command="echo">
+								<arg>Smoke test</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="binary_repo">
+				<jobs>
+					<job name="binary_repo">
+						<tasks>
+							<exec command="echo">
+								<arg>Send metadata (uat stage passed) to artifact repository</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+		</pipeline>
+		<pipeline name="capacity_pipeline">
+			<materials>
+				<pipeline materialName="app_artifact" pipelineName="acceptance_pipeline" stageName="binary_repo"/>
+			</materials>
+			<stage name="configure_env">
+				<jobs>
+					<job name="configure_env">
+						<tasks>
+							<exec command="echo">
+								<arg>Configure environment</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="deploy_binaries">
+				<jobs>
+					<job name="deploy_binaries">
+						<tasks>
+							<exec command="echo">
+								<arg>Deploy binaries from artifact repository</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="smoke_test">
+				<jobs>
+					<job name="smoke_test">
+						<tasks>
+							<exec command="echo">
+								<arg>Smoke test</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="capacity_test">
+				<jobs>
+					<job name="capacity_test">
+						<tasks>
+							<exec command="echo">
+								<arg>Capacity tests</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="binary_repo">
+				<jobs>
+					<job name="binary_repo">
+						<tasks>
+							<exec command="echo">
+								<arg>Send metadata (capacity stage passed) to artifact repository</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+		</pipeline>
+		<pipeline isLocked="true" name="production_pipeline">
+			<materials>
+				<pipeline materialName="app_artifact" pipelineName="acceptance_pipeline" stageName="binary_repo"/>
+			</materials>
+			<stage name="configure_env">
+				<approval type="manual"/>
+				<jobs>
+					<job name="configure_env">
+						<tasks>
+							<exec command="echo">
+								<arg>Configure environment</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="deploy_binaries">
+				<jobs>
+					<job name="deploy_binaries">
+						<tasks>
+							<exec command="echo">
+								<arg>Deploy binaries from artifact repository</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="smoke_test">
+				<jobs>
+					<job name="smoke_test">
+						<tasks>
+							<exec command="echo">
+								<arg>Smoke test</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+			<stage name="binary_repo">
+				<jobs>
+					<job name="binary_repo">
+						<tasks>
+							<exec command="echo">
+								<arg>Send metadata (production stage passed) to artifact repository</arg>
+								<runif status="passed"/>
+							</exec>
+						</tasks>
+					</job>
+				</jobs>
+			</stage>
+		</pipeline>
+	</pipelines>
+	<agents>
+		<agent hostname="cdserver" ipaddress="178.62.106.44" uuid="388d685c-a30c-4395-911e-a56a49093013"/>
+	</agents>
+</cruise>
