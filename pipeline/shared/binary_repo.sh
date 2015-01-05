@@ -1,0 +1,1 @@
+echo "upload artifacts to artifact repo"

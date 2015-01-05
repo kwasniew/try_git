@@ -9,7 +9,7 @@ def task(pipeline, name, action):
 def scripted_task(pipeline, name, script):
 	stage = pipeline.ensure_stage(name)
 	job = stage.ensure_job(name)
-	job.add_task(ExecTask([script]))
+	job.add_task(ExecTask(script.split()))
 
 def manual_task(pipeline, name, action):
 	stage = pipeline.ensure_stage(name).set_has_manual_approval()
@@ -26,17 +26,17 @@ scripted_task(pipeline, "compile", "./pipeline/commit/compile.sh")
 scripted_task(pipeline, "commit_tests", "./pipeline/commit/commit_tests.sh")
 scripted_task(pipeline, "assemble", "./pipeline/commit/assemble.sh")
 scripted_task(pipeline, "code_analysis", "./pipeline/commit/code_analysis.sh")
-scripted_task(pipeline, "binary_repo", "./pipeline/commit/binary_repo.sh")
+scripted_task(pipeline, "binary_repo", "./pipeline/shared/binary_repo.sh commit")
 
 pipeline = go_server \
     .ensure_pipeline_group("textbook_parallel_pipelines") \
     .ensure_replacement_of_pipeline("acceptance_pipeline") \
     .ensure_material(PipelineMaterial("commit_pipeline", "binary_repo", "app_artifact"))
-task(pipeline, "configure_env", "Configure environment")
-task(pipeline, "deploy_binaries", "Deploy binaries from artifact repository")
-task(pipeline, "smoke_test", "Smoke test")
-task(pipeline, "acceptance_test", "Acceptance tests")
-task(pipeline, "binary_repo", "Send metadata (acceptance stage passed) to artifact repository")
+scripted_task(pipeline, "configure_env", "./pipeline/shared/configure_env.sh acceptance")
+scripted_task(pipeline, "deploy_binaries", "./pipeline/shared/deploy_binaries.sh acceptance")
+scripted_task(pipeline, "smoke_test", "./pipeline/shared/smoke_test.sh acceptance")
+scripted_task(pipeline, "acceptance_test", "./pipeline/acceptance/acceptance_test.sh")
+scripted_task(pipeline, "binary_repo", "./pipeline/shared/binary_repo.sh acceptance")
 
 pipeline = go_server \
     .ensure_pipeline_group("textbook_parallel_pipelines") \
